@@ -1,4 +1,4 @@
-package library
+package org.eron.fxkotlin.library
 
 interface DAO {
 

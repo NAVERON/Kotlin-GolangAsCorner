@@ -1,18 +1,17 @@
-package library
+package org.eron.fxkotlin.library
 
 class Book {
 
-    private var uniqueID : Long = 0
-    private var name : String = ""
-    private var authors : List<String> = listOf()
-    private var publishedDate : String = ""
-    private var available : Boolean = true
+    var uniqueID : Long = 0
+    var name : String = ""
+    var authors : List<String> = listOf()
+    var publishedDate : String = ""
+    var available : Boolean = true
 
-    constructor()
+    constructor(){}
     constructor(name: String) {
         this.name = name
     }
-
 
     fun getAuthors() : String {
         return buildString {
@@ -25,12 +24,8 @@ class Book {
 //        return authors.joinToString(", ")
     }
 
-    fun setAuthors(authors : List<String>){
-
-    }
-
     fun setAuthors(authors : String){
-
+        this.authors = authors.split(",").map { it.trim() }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -58,7 +53,13 @@ class Book {
     }
 
     override fun toString(): String {
-        return "Book(uniqueID=$uniqueID, name='$name', authors=$authors, publishedDate='$publishedDate', available=$available)"
+        return "Book(" +
+                "uniqueID=$uniqueID, " +
+                "name='$name', " +
+                "authors=$authors, " +
+                "publishedDate='$publishedDate', " +
+                "available=$available" +
+                ")"
     }
 
 }

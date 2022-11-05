@@ -46,7 +46,7 @@ fun main(args : Array<String>) {
 
     // 调用一个对象
     val myTurtle = Turtle()
-    with(myTurtle){
+    with(myTurtle){  // 同时在一个逻辑中调用一个对象 方法
         penDown()
         for(i in 0.. 3){
             forward(2)
