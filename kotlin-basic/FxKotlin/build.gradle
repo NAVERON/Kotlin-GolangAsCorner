@@ -10,7 +10,11 @@ group 'org.eron'
 version '1.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
+    maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
     mavenCentral()
+    maven { url "https://nexus.gluonhq.com/nexus/content/repositories/releases/" }
+    gradlePluginPortal()
 }
 
 ext {

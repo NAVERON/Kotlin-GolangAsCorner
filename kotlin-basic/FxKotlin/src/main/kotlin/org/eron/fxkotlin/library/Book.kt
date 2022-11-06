@@ -2,7 +2,7 @@ package org.eron.fxkotlin.library
 
 class Book {
 
-    var uniqueID : Long = 0
+    var uniqueID : Long = -1
     var name : String = ""
     var authors : List<String> = listOf()
     var publishedDate : String = ""

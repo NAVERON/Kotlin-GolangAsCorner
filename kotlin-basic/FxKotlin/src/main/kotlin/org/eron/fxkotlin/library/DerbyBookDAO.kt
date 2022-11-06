@@ -1,6 +1,7 @@
 package org.eron.fxkotlin.library
 
 import java.sql.Connection
+import java.sql.Driver
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
@@ -8,16 +9,16 @@ import java.sql.Statement
 
 class DerbyBookDAO : BookDAO {
 
-    val JDBC_URL : String = "jdbc:derby:library.db;create=true"
-    val DRIVER_CLASS : String = "org.apache.derby.jdbc.EmbeddedDriver"
-    val USRE : String = "root"
-    val PASSWORD : String = "root"
-    val DERBY_SHUTDOWN_URL : String = "jdbc:derby:;shutdown=true"
+    private val JDBC_URL : String = "jdbc:derby:library.db;create=true"
+    private val DRIVER_CLASS : String = "org.apache.derby.jdbc.EmbeddedDriver"
+    private val USRE : String = "root"
+    private val PASSWORD : String = "root"
+    private val DERBY_SHUTDOWN_URL : String = "jdbc:derby:;shutdown=true"
 
-    val connection : Connection = DriverManager.getConnection(JDBC_URL)
-    var statement : Statement = connection.createStatement()
+    private lateinit var connection : Connection
+    private lateinit var statement : Statement
 
-    val createTableStatement : String = """
+    private val createTableStatement : String = """
         create table if not exists library (
             id bigint not null generated always as identity (start with 1, increment by 1), 
             name varchar(30), 
@@ -28,14 +29,17 @@ class DerbyBookDAO : BookDAO {
     """.trimIndent()
 
     init {
-        Class.forName("org.apache.derby.jdbc.EmbeddedDriver").getDeclaredConstructor().newInstance()
+        Class.forName(DRIVER_CLASS).getDeclaredConstructor().newInstance()
         // 对象初始化 直接执行一次
         this.setup()
     }
 
     override fun setup() {
         println("initial derbyDB setup")
-        statement.executeUpdate(createTableStatement)
+        this.connection = DriverManager.getConnection(JDBC_URL)
+        this.statement = connection.createStatement()
+
+        statement.executeUpdate(createTableStatement)  // 表初始化
     }
 
     override fun connect() {
