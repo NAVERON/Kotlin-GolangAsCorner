@@ -1,10 +1,11 @@
 package org.eron.fxkotlin.library
 
-class Library(bookDAO : BookDAO) {
+class Library(bookDAO: BookDAO) {
 
-    lateinit var bookDAO : BookDAO
+    private val _bookDAO : BookDAO
     init {
-        this.bookDAO.setup()
+        this._bookDAO = bookDAO
+        this._bookDAO.setup()
     }
 
     fun addNewBook(name : String, authors : List<String>, year : String) : Unit {
@@ -15,30 +16,30 @@ class Library(bookDAO : BookDAO) {
             this.available = true
         }
 
-        this.bookDAO.insertBook(newBook)
+        this._bookDAO.insertBook(newBook)
     }
 
     fun loanBook(id : Long) {
-        this.bookDAO.findBookByProperty(BookSearchTypeEnum.ID, id)
+        this._bookDAO.findBookByProperty(BookSearchTypeEnum.ID, id)
                     .forEach {
                         it.available = false
-                        this.bookDAO.updateBook(it)
+                        this._bookDAO.updateBook(it)
                     }
     }
 
     fun returnBackBook(id : Long) {
-        this.bookDAO.findBookByProperty(BookSearchTypeEnum.ID, id)
+        this._bookDAO.findBookByProperty(BookSearchTypeEnum.ID, id)
             .forEach {
                 it.available = true
-                this.bookDAO.updateBook(it)
+                this._bookDAO.updateBook(it)
             }
     }
 
     fun search(type : BookSearchTypeEnum, value : Any) : List<Book> {
-        return this.bookDAO.findBookByProperty(type, value)
+        return this._bookDAO.findBookByProperty(type, value)
     }
 
     fun allBooks() : List<Book> {
-        return this.bookDAO.findAll()
+        return this._bookDAO.findAll()
     }
 }

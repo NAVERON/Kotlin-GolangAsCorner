@@ -43,13 +43,19 @@ class LibraryLauncher : Application() {
         val doLoan : Button = Button("loan").also {
             it.setOnAction {
                 // 借书
-                this.library.loanBook(booksList.selectionModel.selectedItem.uniqueID)
+                val selected : Long? = booksList.selectionModel.selectedItem?.uniqueID
+                if (selected != null) {
+                    this.library.loanBook(selected)
+                }
             }
         }
         val doReturn : Button = Button("return").also {
             it.setOnAction {
                 // 还书
-                this.library.returnBackBook(booksList.selectionModel.selectedItem.uniqueID)
+                val selected : Long? = booksList.selectionModel.selectedItem?.uniqueID
+                if (selected != null) {
+                    this.library.returnBackBook(selected)
+                }
             }
         }
 

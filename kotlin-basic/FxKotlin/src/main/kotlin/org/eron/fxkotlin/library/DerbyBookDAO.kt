@@ -9,8 +9,9 @@ import java.sql.Statement
 
 class DerbyBookDAO : BookDAO {
 
-    private val JDBC_URL : String = "jdbc:derby:library.db;create=true"
-    private val DRIVER_CLASS : String = "org.apache.derby.jdbc.EmbeddedDriver"
+    private val JDBC_URI : String = "jdbc:derby:library.db;create=true" //
+    private val DRIVER_CLASS : String = //"org.apache.derby.iapi.jdbc.DRDAServerStarter"
+                                      "org.apache.derby.jdbc.EmbeddedDriver"
     private val USRE : String = "root"
     private val PASSWORD : String = "root"
     private val DERBY_SHUTDOWN_URL : String = "jdbc:derby:;shutdown=true"
@@ -18,28 +19,42 @@ class DerbyBookDAO : BookDAO {
     private lateinit var connection : Connection
     private lateinit var statement : Statement
 
+    private val dropTableStatement : String = """
+        drop table library
+    """.trimIndent()
     private val createTableStatement : String = """
-        create table if not exists library (
+        create table library (
             id bigint not null generated always as identity (start with 1, increment by 1), 
             name varchar(30), 
             authors varchar(100), 
-            publisher_year integer, 
-            available boolean
+            publisher_year varchar(50), 
+            available boolean, 
+            primary key(id)
         )
     """.trimIndent()
-
+    private val initDatas : String = """
+        insert into library(name, authors, publisher_year, available) values('aa', 'a,b,c', '1990', false)
+    """.trimIndent()
+//    insert into library(name, authors, publisher_year, available) values('bb', 'c,b,a', '1991', 0)
+//    insert into library(name, authors, publisher_year, available) values('cc', 'b,c,a', '1992', 0)
     init {
-        Class.forName(DRIVER_CLASS).getDeclaredConstructor().newInstance()
+        // Class.forName(DRIVER_CLASS).getDeclaredConstructor().newInstance()
         // 对象初始化 直接执行一次
-        this.setup()
+        // this.setup()
     }
 
     override fun setup() {
         println("initial derbyDB setup")
-        this.connection = DriverManager.getConnection(JDBC_URL)
+        this.connection = DriverManager.getConnection(JDBC_URI)
         this.statement = connection.createStatement()
 
+        // 表的初始化不能使用 if not exists 需要上层写逻辑判断是否存在表
+        statement.executeUpdate(dropTableStatement)
         statement.executeUpdate(createTableStatement)  // 表初始化
+
+        // 数据
+        this.statement.executeUpdate(initDatas)
+        this.statement.close()
     }
 
     override fun connect() {
@@ -101,7 +116,7 @@ class DerbyBookDAO : BookDAO {
 
     override fun findAll(): List<Book> {
         statement = connection.createStatement()
-        val all : String = ""
+        val all : String = "select * from library"
         val res = statement.executeQuery(all)
 
         val allBooks : List<Book> = transferToBook(res)
@@ -113,6 +128,18 @@ class DerbyBookDAO : BookDAO {
     fun transferToBook(result : ResultSet) : List<Book> {
         val meta : ResultSetMetaData = result.metaData
         println("table column count --> ${meta.columnCount}")
+        (1..meta.columnCount).forEach{
+            println(meta.getColumnName(it))
+        }
+
+        while (result.next()){
+            (1..meta.columnCount).forEach{
+                val colName = meta.getColumnName(it)
+                println("输出每行数据 ------")
+                println("第 $it 数据 --> ${result.getString(colName)}")
+            }
+
+        }
 
         result.close()
         return listOf()
