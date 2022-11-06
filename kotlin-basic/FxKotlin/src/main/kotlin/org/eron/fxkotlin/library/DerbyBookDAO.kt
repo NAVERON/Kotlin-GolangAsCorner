@@ -1,7 +1,6 @@
 package org.eron.fxkotlin.library
 
 import java.sql.Connection
-import java.sql.Driver
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
@@ -10,8 +9,8 @@ import java.sql.Statement
 class DerbyBookDAO : BookDAO {
 
     private val JDBC_URI : String = "jdbc:derby:library.db;create=true" //
-    private val DRIVER_CLASS : String = //"org.apache.derby.iapi.jdbc.DRDAServerStarter"
-                                      "org.apache.derby.jdbc.EmbeddedDriver"
+    private val DRIVER_CLASS : String = "org.apache.derby.iapi.jdbc.DRDAServerStarter"
+                                      //"org.apache.derby.jdbc.EmbeddedDriver"
     private val USRE : String = "root"
     private val PASSWORD : String = "root"
     private val DERBY_SHUTDOWN_URL : String = "jdbc:derby:;shutdown=true"
@@ -44,7 +43,7 @@ class DerbyBookDAO : BookDAO {
     }
 
     override fun setup() {
-        println("initial derbyDB setup")
+        println("initial derby db setup")
         this.connection = DriverManager.getConnection(JDBC_URI)
         this.statement = connection.createStatement()
 
@@ -70,7 +69,9 @@ class DerbyBookDAO : BookDAO {
     override fun insertBook(book: Book) {
         statement = connection.createStatement()
         val insert : String = "insert into library(name, authors, publisher_year, available) " +
-                "values(${book.name}, ${book.authors.toString()}, ${book.publishedDate}, ${book.available})"
+                "values('${book.name}', '${book.authors.joinToString(",")}', '${book.publishedDate}', ${book.available})"
+
+        println("insert book sql : $insert")
         statement.execute(insert)
         statement.close()
     }
@@ -78,9 +79,11 @@ class DerbyBookDAO : BookDAO {
     override fun updateBook(book: Book) {
         statement = connection.createStatement()
         val update : String = "update library set " +
-                "name = ${book.name}, authors = ${book.authors.toString()}, " +
-                "publisher_year = ${book.publishedDate}, available = ${book.available} " +
+                "name = '${book.name}', authors = '${book.authors.joinToString(",")}', " +
+                "publisher_year = '${book.publishedDate}', available = ${book.available} " +
                 "where id = ${book.uniqueID}"
+
+        println("update book sql : $update")
         statement.executeUpdate(update)
         statement.close()
     }
@@ -89,28 +92,31 @@ class DerbyBookDAO : BookDAO {
         statement = connection.createStatement()
         val delete : String = "delete from library where id = ${book.uniqueID}"
 
+        println("delete sql : $delete")
         statement.execute(delete)
         statement.close()
     }
 
     override fun findBookByProperty(searchType: BookSearchTypeEnum, value : Any): List<Book> {
-        var whereClause : String = ""
-        var books : List<Book> = listOf()
+        var books : List<Book>
 
-        whereClause = when(searchType) {
-            BookSearchTypeEnum.ID -> "id = ${value.toString()}"
-            BookSearchTypeEnum.NAME -> "name like %${value.toString()}%"
-            BookSearchTypeEnum.AUTHOR -> "authors like %${value.toString()}%"
-            BookSearchTypeEnum.PUBLISHED_YEAR -> "publisher_year = ${value.toString()}"
+        var whereClause : String = when(searchType) {
+            BookSearchTypeEnum.ID -> if(value.toString().isBlank()) "id = -1" else "id = ${value.toString()}"
+            BookSearchTypeEnum.NAME -> "name like '%${value.toString()}%'"
+            BookSearchTypeEnum.AUTHOR -> "authors like '%${value.toString()}%'"
+            BookSearchTypeEnum.PUBLISHED_YEAR -> "publisher_year = '${value.toString()}' "
             BookSearchTypeEnum.AVAILABLE -> "available = ${value.toString()}"
         }
 
-        val queryBy : String = "select * from library where $whereClause"
+        val queryBy : String = "select * from library where $whereClause "
+        println("query books sql : $queryBy")
+
         statement = connection.createStatement()
         val res : ResultSet = statement.executeQuery(queryBy)
         books = transferToBook(res)
         statement.close()
 
+        println("query result --> $books")
         return books
     }
 
@@ -125,23 +131,46 @@ class DerbyBookDAO : BookDAO {
         return allBooks
     }
 
-    fun transferToBook(result : ResultSet) : List<Book> {
+    /**
+     * transfer string to book
+     * ORM object relationship to map
+     */
+    private fun transferToBook(result : ResultSet) : List<Book> {
+        var transferRes : MutableList<Book> = mutableListOf()
+
         val meta : ResultSetMetaData = result.metaData
-        println("table column count --> ${meta.columnCount}")
         (1..meta.columnCount).forEach{
-            println(meta.getColumnName(it))
+            print("${meta.getColumnName(it)}, ")
         }
 
         while (result.next()){
-            (1..meta.columnCount).forEach{
-                val colName = meta.getColumnName(it)
-                println("输出每行数据 ------")
-                println("第 $it 数据 --> ${result.getString(colName)}")
-            }
+            // for suto list save
+//            var tmp : MutableList<String> = mutableListOf()
+//            (1..meta.columnCount).forEach{
+//                val colName = meta.getColumnName(it)
+//                tmp.add(it - 1, result.getString(colName))
+//            }
+//            println("array save all --> $tmp")
 
+            val id : Long = result.getString(1).toLong()
+            val name : String = result.getString(2)
+            val authors : String = result.getString(3)
+            val publish : String = result.getString(4)
+            val available : Boolean = result.getString(5).toBoolean()
+            println("get result data --> $id, $name, $authors, $publish, $available")
+
+            // create new book
+            val book : Book = Book().apply {
+                this.uniqueID = id
+                this.name = name
+                this.setAuthors(authors)
+                this.publishedDate = publish
+                this.available = available
+            }
+            transferRes.add(book)
         }
 
         result.close()
-        return listOf()
+        return transferRes
     }
 }

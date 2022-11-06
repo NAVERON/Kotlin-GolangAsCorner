@@ -53,7 +53,7 @@ dependencies {
     implementation('com.github.almasb:fxgl:17.1') {
         exclude(group: 'org.openjfx')
     }
-    runtimeOnly('org.apache.derby:derby:10.14.2.0')
+    runtimeOnly('org.apache.derby:derby:10.15.2.0')
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
