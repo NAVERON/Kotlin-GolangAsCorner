@@ -7,6 +7,6 @@
 ## 记事  
 
 1. JavaFx 当前不能使用 module-info 正常启动, 删除module 即可 
-2. 当前运行存在找不到derby jar的情况, 不话费时间解决, 以后再说  
+2. 当前运行存在找不到derby jar的情况, 不话费时间解决, 以后再说; update : 根据需要创建table    
 3. 使用kotlin重写 library 完成, 仅作为练习项目  
 
