@@ -12,6 +12,22 @@ import (
 )
 
 const PI = 3.14
+type Ship struct {
+	id int32
+	name string
+}
+func (ship Ship) getName() string {
+	return ship.name
+}
+func (ship *Ship) getID() int32 {
+	return ship.id
+}
+func (ship *Ship) changeName(name string) {
+	ship.name = name
+}
+func getShipName(ship Ship) string {
+	return ship.name
+}
 
 func main() {
 	fmt.Println("Hello, 世界")
@@ -46,7 +62,7 @@ func main() {
 	basic(10)
 	types()
 
-	// 使用函数 
+	// 使用函数 相当于lambda函数表达式 
 	hypot := func(x, y float64) float64 {
 		return math.Sqrt(x*x + y*y)
 	}
@@ -62,9 +78,19 @@ func main() {
 		)
 	}
 
-	// 各种方法的定义和使用
-	
+	// 各种方法的定义和使用 
+	// 1  struct 定义内部方法 
 
+	ship := Ship{1, "default"}
+	fmt.Println(ship.getName())
+	ship.name = "changed"
+	fmt.Println("method as function --> ", getShipName(ship))
+	ship.changeName("hello world")
+	fmt.Println("输出ship修改name后的 --> ", ship)
+	ps := &ship
+	ps.changeName("测试指针修改")
+	fmt.Println("指针修改 --> ", *ps)
+	
 }
 
 // 闭包函数 
