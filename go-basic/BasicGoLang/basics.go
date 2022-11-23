@@ -28,6 +28,9 @@ func (ship *Ship) changeName(name string) {
 func getShipName(ship Ship) string {
 	return ship.name
 }
+func (ship Ship) String() string {
+	return  "id : " + string(ship.id) + ", name : " + ship.name 
+}
 
 func main() {
 	fmt.Println("Hello, 世界")
@@ -67,7 +70,7 @@ func main() {
 		return math.Sqrt(x*x + y*y)
 	}
 	fmt.Println(hypot(5, 12))  // 需要什么功能, 就传入什么函数 
-	fmt.Println(compute(hypot))
+	fmt.Println(compute(hypot))  // 函数作为参数 
 	fmt.Println(compute(math.Pow))
 
 	pos, neg := adder(), adder()
@@ -95,6 +98,8 @@ func main() {
 
 // 闭包函数 
 func adder() func(int) int {  // 调用会保存当前的计算结果, 下一次调用继续 
+	// 这种结构可以这么理解  
+	// 定义函数  func  xxx  返回值 func(xx) xx --> 返回函数的返回值 
 	sum := 0
 	return func(x int) int {
 		sum += x
