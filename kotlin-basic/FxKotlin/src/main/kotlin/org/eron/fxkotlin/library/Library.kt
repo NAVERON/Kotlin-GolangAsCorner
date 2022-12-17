@@ -5,7 +5,7 @@ import kotlin.random.Random
 class Library(bookDAO: BookDAO) {
 
     private val _bookDAO : BookDAO
-    init {
+    init {  // 实例化之后会自动执行一次
         this._bookDAO = bookDAO
         this._bookDAO.setup()
     }

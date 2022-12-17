@@ -48,7 +48,7 @@ class DerbyBookDAO : BookDAO {
         this.statement = connection.createStatement()
 
         // 表的初始化不能使用 if not exists 需要上层写逻辑判断是否存在表
-        statement.executeUpdate(dropTableStatement)
+        // statement.executeUpdate(dropTableStatement)
         statement.executeUpdate(createTableStatement)  // 表初始化
 
         // 数据
