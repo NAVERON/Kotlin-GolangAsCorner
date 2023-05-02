@@ -5,6 +5,19 @@ plugins {
 group = 'org.eron'
 version = '1.0-SNAPSHOT'
 
+allprojects {
+    repositories {
+        maven {
+            url 'https://maven.aliyun.com/repository/public/'
+        }
+        maven {
+            url 'https://maven.aliyun.com/repository/spring/'
+        }
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
 repositories {
     mavenCentral()
 }
